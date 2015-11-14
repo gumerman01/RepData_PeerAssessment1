@@ -4,27 +4,7 @@ Jorge Rodriguez
 ##Code to download and unzip the date and then load it into a dataframe 
 
 ```r
-library(dplyr)
-```
-
-```
-## Warning: package 'dplyr' was built under R version 3.2.2
-```
-
-```
-## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union
-```
-
-```r
+library(lattice)
 library(ggplot2)
 setwd("/Users/rodrigblanco/Documents/Formacion/Coursera/05_ReproducibleResearch/Project1")
 fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
@@ -111,7 +91,7 @@ names(meanDate) <- c("date","steps")
 for (i in 1:length(actWoNA$steps)) {
     if (is.na(actWoNA$steps[i])) {
         dateNA <- actWoNA$date[i]
-        dateMean <- filter(meanDate,date %in% dateNA)
+        dateMean <- subset(meanDate, date == dateNA)
         if (is.nan(dateMean$steps)) {
             dateMean$steps <- 0
         }
@@ -152,14 +132,16 @@ Create a new factor variable in the dataset with two levels – “weekday” an
 
 ```r
 activity$daytype <- "weekday"
-for (i in 1:length(activity$date)) {
-    if (weekdays(activity$date[i]) =="sábado") {
-        activity$daytype[i] <- "weekend"
+
+for (j in 1:length(activity$date)) {
+    if (weekdays(activity$date[j]) =="sábado") {
+        activity$daytype[j] <- "weekend"
     }
-    else if (weekdays(activity$date[i]) == "domingo") {
-        activity$daytype[i] <- "weekend"
+    else if (weekdays(activity$date[j]) == "domingo") {
+        activity$daytype[j] <- "weekend"
     }
 }
+
 activity$daytype <- as.factor(activity$daytype)
 ```
 
@@ -169,7 +151,6 @@ Make a panel plot containing a time series plot of the 5-minute interval (x-axis
 weekInterval <- aggregate(activity$steps, list(interval = activity$interval, daytype = activity$daytype), mean, na.rm = TRUE)
 names(weekInterval) <- c("interval", "daytype","steps")
 
-library("lattice")
 p <- xyplot(steps ~ interval | daytype, data = weekInterval, layout = c(1,2),type = 'l')
 print (p) 
 ```
